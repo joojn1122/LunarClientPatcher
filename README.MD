@@ -1,3 +1,8 @@
+This simple patcher will patch Lunar Client launcher to start java agents on startup.
+
+### Requirements
+[node](https://nodejs.org/en)
+
 ### First of all install asar
 ```sh
 npm install -g asar
@@ -9,19 +14,22 @@ Simply run
 node index.js
 ```
 
-This will patch the Lunar Client launcher for loading java agents
-JavaAgents path: %LUNARDIR%\java-agents
+Now you successfully patched Lunar Client launcher 
+until update, then you can patch it again. 
+
+### Java Agents
+Java agents path: %LUNARDIR%/java-agents
 
 %LUNARDIR%:
-Windows: `%LOCALAPPDATA%\Programs\lunarclient`
-MacOS: `/Applications/Lunar Client.app/Contents/MacOS`
-Linux: `$HOME/.lunarclient`
+Windows: `%LOCALAPPDATA%\Programs\lunarclient`<br>
+MacOS: `/Applications/Lunar Client.app/Contents/MacOS`<br>
+Linux: `$HOME/.lunarclient`<br>
 
-You can find variety of java agents
- for example [here](https://github.com/Nilsen84/lunar-client-agents)
+You can find variety of java agents 
+for example [here](https://github.com/Nilsen84/lunar-client-agents)
 
 ### Disclaimer
 USE ON YOUR OWN!
 
 This could break your Lunar Client installation,
-if this happens, you can reinstall Lunar Client
+if this happens, reinstall your Lunar Client
