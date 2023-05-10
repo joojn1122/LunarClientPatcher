@@ -3,6 +3,23 @@ const os = require('os');
 const path = require('path');
 const child_process = require('child_process');
 
+function getAllFunctions(obj) {
+    const functions = []
+    let proto = obj
+  
+    while (proto !== null) {
+      const keys = Object.getOwnPropertyNames(proto)
+  
+      keys.forEach(key => {
+        functions.push(key);
+      });
+  
+      proto = Object.getPrototypeOf(proto)
+    }
+  
+    return functions
+  }
+
 function getLunarDirectory() {
     switch (os.type()) {
         case "Windows_NT":
@@ -47,4 +64,9 @@ child_process.spawn = function(command, args, opts) {
     );
 }
 
-require('electron').remote.getCurrentWindow().webContents.removeAllListeners('devtools-opened');
+// Electron doesn't like the pure names
+const electron_ = require('electron');
+const window_ = electron_.remote.getCurrentWindow();
+
+window_.webContents.removeAllListeners('devtools-opened');
+window_.setResizable(true);
