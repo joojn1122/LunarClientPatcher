@@ -1,0 +1,14 @@
+{
+  "name": "lunar-patcher",
+  "version": "1.0.0",
+  "description": "This simple patcher will patch Lunar Client launcher to start java agents on startup.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "joojn",
+  "license": "ISC",
+  "dependencies": {
+    "asar": "^3.2.0"
+  }
+}

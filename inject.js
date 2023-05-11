@@ -3,23 +3,6 @@ const os = require('os');
 const path = require('path');
 const child_process = require('child_process');
 
-function getAllFunctions(obj) {
-    const functions = []
-    let proto = obj
-  
-    while (proto !== null) {
-      const keys = Object.getOwnPropertyNames(proto)
-  
-      keys.forEach(key => {
-        functions.push(key);
-      });
-  
-      proto = Object.getPrototypeOf(proto)
-    }
-  
-    return functions
-  }
-
 function getLunarDirectory() {
     switch (os.type()) {
         case "Windows_NT":
@@ -40,6 +23,27 @@ if(!fs.existsSync(agentsDir)) {
     fs.mkdirSync(agentsDir);
 }
 
+function getArgument(agent) {
+    const base = path.basename(agent);
+    const arg = localStorage.getItem(base);
+
+    if(arg == null) return "";
+
+    return "=" + arg;
+}
+
+function getAgents() {
+    const agents = [];
+    
+    for(const agent of fs.readdirSync(agentsDir, {withFileTypes: true})) {
+        if(agent.name.endsWith(".jar")) {
+            agents.push(path.join(agentsDir, agent.name));
+        }
+    }
+
+    return agents;
+}
+
 // From: https://github.com/Nilsen84/lunar-launcher-inject/blob/master/payload.js
 const origSpawn = child_process.spawn;
 child_process.spawn = function(command, args, opts) {
@@ -49,17 +53,11 @@ child_process.spawn = function(command, args, opts) {
     delete opts.env['JAVA_TOOL_OPTIONS'];
     delete opts.env['JDK_JAVA_OPTIONS'];
 
-    const agents = [];
-
-    for(const agent of fs.readdirSync(agentsDir, {withFileTypes: true})) {
-        if(agent.name.endsWith(".jar")) {
-            agents.push(path.join(agentsDir, agent.name));
-        }
-    }
-
+    const agents = getAgents();
+    
     return origSpawn(
         command, [
-            ...agents.map(agent => `-javaagent:${agent}`), ...args
+            ...agents.map(agent => `-javaagent:${agent}${getArgument(agent)}`), ...args
         ], opts
     );
 }

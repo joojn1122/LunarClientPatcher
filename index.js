@@ -1,7 +1,7 @@
-const child_process = require("child_process");
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const asar = require('asar');
 
 function getLunarDirectory() {
 
@@ -19,22 +19,22 @@ function getLunarDirectory() {
 
 const dir = getLunarDirectory();
 
-const asar = path.join(dir, "resources", "app.asar");
+const asarApp = path.join(dir, "resources", "app.asar");
 const asarExtracted = path.join(dir, "resources", "app");
 
 console.log("[*] Extracting asar...");
-child_process.execSync(`asar extract ${asar} ${asarExtracted}`);
+asar.extractAll(asarApp, asarExtracted);
 
-const renderer = path.join(asarExtracted, "renderer.js");
+const main = path.join(asarExtracted, "renderer.js");
 
-console.log("[*] Patching renderer.js...");
+console.log("[*] Patching...");
 
-// Last line of unpatched renderer should end with comment
-let contents = fs.readFileSync(renderer).toString();
+// Last line of unpatched main should end with comment
+let contents = fs.readFileSync(main).toString();
 const lastLine = "//# sourceMappingURL";
 
 if(!contents.split("\n").pop().includes(lastLine)) {
-    console.log("[!] Renderer already patched, repatching!");
+    console.log("[!] Already patched, repatching!");
     
     // Remove old patch
     let lines = contents.split("\n");
@@ -43,15 +43,18 @@ if(!contents.split("\n").pop().includes(lastLine)) {
     lines.push(line);
 
     contents = lines.join("\n");
-    fs.writeFileSync(renderer, contents);
+    fs.writeFileSync(main, contents);
 }
 
-fs.appendFileSync(renderer,
+fs.appendFileSync(main,
     "\n" + fs.readFileSync(path.join(__dirname, "inject.js")));
 
 console.log("[*] Repacking asar...");
-child_process.execSync(`asar pack ${asarExtracted} ${asar}`);
 
-fs.rmSync(asarExtracted, { recursive: true, force: true });
+asar.createPackage(asarExtracted, asarApp).then(() => {
 
-console.log("[*] Done patching Lunar Client!");
+    fs.rmSync(asarExtracted, { recursive: true, force: true });
+
+    console.log("[*] Done patching Lunar Client!");
+
+});
